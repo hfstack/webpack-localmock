@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalMock</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <el-container>
+            <el-header>
+                <!-- <p>LocalMock</p> -->
+                <img style="height: 30px; background-color: #ccc;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAj8AAACoCAMAAAA4jn/XAAABmFBMVEUAAAD/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////mAD/////////mAD/////mAD/////////////mgD/mAD/mQD/mAD/mQD/mgD/mAD/mAD/mQD/mQD/mAD/mQD/mQD/mQD/mAD/mAD/mQD/mQAAAAD////xkAC/cgBCKACyagD9lwDihwAIBQBmPQAmFwD7lgD5lQB9SwBxQwDPfAAgEwAOCAA1HwAwHADliQBgOQAKBgCFTwDvjgCeXwCaXABrQAA7IwAVDADYgQBZNQAqGQDrjQDpiwD1kgCsZwCnZADehACjYQBMLgDLeQDHdgDDdQCLUwBSMQDSfQBHKgB3RwDVfwDJeAC2bACvaQCUWACQVgC5bwCXWgAaDwDOewC9cQB80O8mAAAAS3RSTlMA+hTDKXz+9Zh2TcvhwPDm6m/RZQXcsZNXJF8+17q1ooctHA+pnDZqXFIMt6yOhEhD8Ykx9Re3ecjGRRJtVycdwK5l2diOgXLf2qgGg9FRAAAQa0lEQVR42uzYu0oDURCA4ePlKWxtbAPBwqjEaBCcTbwVFiGdguQZxGdXw8pCirh7grJmv6+f7i9mJgEAAAAAAAAAAAAAAADAfzMYHV/2ooN6V8ejQWIjg3E/Oqw/VtAmTjpdz5feSSLXdRCniTxnwaezRI7zYOk8keEiWLpJNDcISo6wDKeBFTrfMCgNE411/vVT6SUaC771E/rZQEI/+llHPxX9tECgH/3opx79VPTTAoF+9KOfevRT0c9f2JuUdjvSz31Ruo1G9KMf/ST9rNH+fg4PSkdpO2T18zSrPEYDi2puEb+g9f3sT0o7aTtk9TMtKndR3/O8zlw+/fyodf0Us6jtpdCPflb6eYu6Hl71o5/VfubTqOm90M8He+f+lUQQxXG0BE3QyvKRmm9N83XqdKq/YRZQBHmECqImKgJa5tt8VP92p5Mz32VnZncg0D2d/f7U2eW2nDOf7nzvnbvk8EP5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"  alt="logo">
+                <div style="color: #666; font-size: 14px">快速搭建本地接口mock</div>
+            </el-header>
+            <el-main>
+                <el-row>
+                    <el-col :lg="12" :xs="24">
+                        <el-tabs v-model="active" @tab-click="handleClick">
+                            <el-tab-pane label="接口文档" name="urls">
+                                <el-input
+                                    type="text"
+                                    placeholder="接口过滤"
+                                    v-model="searchInputVal">
+                                </el-input>
+                                <el-table :data="filterTable" @expand-change="expandChange" style="width: 100%">
+                                    <el-table-column type="expand">
+                                        <template slot-scope="props">
+                                            <el-input type="textarea" autosize v-model="props.row.json"></el-input>
+                                            <el-button style="margin-top: 10px" type="primary" @click="() => saveJSON(props.row)">保存
+                                            </el-button>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="url" label="接口Url">
+                                    </el-table-column>
+                                </el-table>
+                            </el-tab-pane>
+                            <el-tab-pane label="新增mock" name="create">
+                                <el-form ref="form" :model="form" model="top" label-width="80px">
+                                    <el-form-item label="接口url">
+                                        <el-input v-model="form.url" placeholder="请输入接口url"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="接口响应">
+                                        <el-input  :rows="10" type="textarea" placeholder="请输入接口响应" v-model="form.json"></el-input>
+                                    </el-form-item>
+                                    <el-form-item>
+                                        <el-button type="primary" @click="onSubmit">创建</el-button>
+                                    </el-form-item>
+                                </el-form>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </el-col>
+                </el-row>
+            </el-main>
+        </el-container>
+    </div>
+    <script>
+        // 在 #app 标签下渲染一个按钮组件
+        new Vue({
+            el: '#app',
+            data: function () {
+                return {
+                    searchInputVal: '',
+                    active: 'urls',
+                    tableData: [{
+                        url: '',
+                        json: ''
+                    }],
+                    form: {
+                        url: '',
+                        json: ''
+                    }
+                }
+            },
+            created() {
+                this.getList()
+            },
+            computed: {
+                filterTable() {
+                    if (this.searchInputVal) {
+                        return this.tableData.filter(item => {
+                            return Object.keys(item).some(key => {
+                                return (
+                                String(item[key])
+                                    .toLowerCase()
+                                    .indexOf(this.searchInputVal) > -1
+                                )
+                            })
+                        })
+                    }
+
+                    return this.tableData
+                },
+            },  
+            methods: {
+                handleClick() { },
+                async expandChange(row) {
+                    const res = await this.getUrlJson(row.url)
+                    row.json = res.data.data
+                },
+                getList() {
+                    axios.get('/apimock/urls').then((res) => res.data).then((res) => {
+                        this.tableData = res.data.map((item) => {
+                            return {
+                                url: item,
+                                json: ''
+                            }
+                        })
+                    }).catch(e => {
+                        console.log(e)
+                    })
+                },
+                getUrlJson(item) {
+                    return axios.get('/apimock/json', {
+                        params: {
+                            url: item
+                        }
+                    })
+                },
+                saveJSON(item) {
+                    const result = this.jsonValify(item.json)
+                    if (!result) {
+                        this.$message({
+                            message: '格式不正确',
+                            type: 'error'
+                        });
+                        return;
+                    }
+                    axios.post('/apimock/save', {
+                        json: item.json,
+                        url: item.url
+                    })
+                },
+                jsonValify(data) {
+                    if (typeof data == 'string') {
+                        try {
+                            var obj = JSON.parse(data);
+                            if (typeof obj == 'object' && obj) {
+                                return true
+                            } else {
+                                return false
+                            }
+                        } catch (e) {
+                            return false
+                        }
+                    }
+                },
+                onSubmit() {
+                    const url = new URL(this.form.url).pathname
+                    const result = this.jsonValify(this.form.json)
+                    if (!result) {
+                        this.$message({
+                            message: '格式不正确',
+                            type: 'error'
+                        });
+                        return;
+                    }
+                    axios.post('/apimock/create', {
+                        json: this.form.json,
+                        url: url
+                    }).then(res => {
+                        this.$message({
+                            message: '创建成功',
+                            type: 'success'
+                        });
+                        // this.form = {
+                        //     url: '',
+                        //     json: ''
+                        // }
+                    }).catch(e => {
+                        this.$message({
+                            message: '创建失败',
+                            type: 'error'
+                        });
+                    })
+                }
+            },
+        });
+    </script>
+</body>
+
+</html>

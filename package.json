@@ -1,0 +1,33 @@
+{
+  "name": "webpack-localmock",
+  "version": "1.0.0",
+  "description": "本地接口mock平台",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "NODE_ENV=production rollup -c",
+    "dev": "rollup -c -w",
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hfstack/webpack-localmock.git"
+  },
+  "author": "hfstack",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hfstack/webpack-localmock/issues"
+  },
+  "homepage": "https://github.com/hfstack/webpack-localmock#readme",
+  "devDependencies": {
+    "@babel/core": "^7.11.0",
+    "@babel/plugin-transform-runtime": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
+    "core-js": "^3.6.5",
+    "rollup": "^2.23.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-eslint": "^7.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^6.1.0"
+  }
+}
