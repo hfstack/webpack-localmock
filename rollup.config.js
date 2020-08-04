@@ -20,7 +20,7 @@ export default [
         throwOnError: true,
         throwOnWarning: true,
         include: ['src/**'],
-        // external: ['path', 'fs', 'mkdir', 'os'],
+        external: ['path', 'fs', 'mkdir', 'os'],
         exclude: ['node_modules/**']
      }),
       babel({
