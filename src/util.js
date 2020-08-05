@@ -7,7 +7,8 @@ const getDirName = require('path').dirname
  * 获取指定目录下的文件
  * @param {*} jsonPath
  */
-const getJsonFiles = function(jsonPath) {
+const getJsonFiles = function(jsonPath, config) {
+  const { mockDir = 'mock', proxyToken = 'api' } = config 
   const jsonFiles = []
   function findJsonFile(path) {
     const files = fs.readdirSync(path)
@@ -19,7 +20,7 @@ const getJsonFiles = function(jsonPath) {
       }
       if (stat.isFile() === true) {
         if (fPath.indexOf('.json') > -1) {
-          jsonFiles.push(fPath.replace('mock/api/', ''))
+          jsonFiles.push(fPath.replace(`${mockDir}/${proxyToken}/`, ''))
         }
       }
     })
@@ -65,7 +66,7 @@ const urlFormat = function(url, config) {
 
   return rqPath
 }
-module.exports = {
+export {
   urlFormat,
   getJsonFiles,
   writeFile,

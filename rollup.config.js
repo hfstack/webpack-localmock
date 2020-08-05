@@ -10,7 +10,7 @@ export default [
     output: {
       name: 'localmock',
       file: 'dist/release.js',
-      format: 'cjs',
+      format: 'umd',
       // minify: true,
     },
     plugins: [
@@ -20,9 +20,9 @@ export default [
         throwOnError: true,
         throwOnWarning: true,
         include: ['src/**'],
-        external: ['path', 'fs', 'mkdir', 'os'],
+        // external: ['path', 'fs', 'mkdirp', 'os'],
         exclude: ['node_modules/**']
-     }),
+      }),
       babel({
         exclude: 'node_modules/**', // 防止打包node_modules下的文件
         runtimeHelpers: true, // 使plugin-transform-runtime生效

@@ -1,5 +1,5 @@
-const mock = require('./mock')
 const os = require('os')
+import mock from './mock'
 
 const getNetworkIp = function() {
   let needHost = '' // 打开的host
@@ -24,7 +24,7 @@ const getNetworkIp = function() {
   return needHost
 }
 
-module.exports = function(option) {
+export default function(option) {
   return {
     port: 7788,
     host: getNetworkIp(),

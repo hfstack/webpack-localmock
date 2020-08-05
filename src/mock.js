@@ -1,8 +1,9 @@
-const util = require('./util.js')
+import { urlFormat, writeFile, getJsonFiles} from './util.js'
 const path = require('path')
 const fs = require('fs')
+const bodyParser = require('body-parser')
 
-module.exports = function(option) {
+export default function(option) {
   const config = {
     app: option.app,
     proxyToken: 'api',
@@ -12,10 +13,14 @@ module.exports = function(option) {
     ...option,
   }
   const { app, proxyToken, placeholder, mockDir } = config
+
+  app.use(bodyParser.urlencoded({ extended: false }))
+  app.use(bodyParser.json())
+
   app.all(`/${proxyToken}/*`, async (req, res) => {
-    const rqPath = util.urlFormat(req.path, config)
-    const JSFilePath = path.join(__dirname, `../${mockDir}/`, `${rqPath}.js`)
-    const JSONFilePath = path.join(__dirname, `../${mockDir}/`, `${rqPath}.json`)
+    const rqPath = urlFormat(req.path, config)
+    const JSFilePath = path.join(__dirname, `../../../${mockDir}/`, `${rqPath}.js`)
+    const JSONFilePath = path.join(__dirname, `../../../${mockDir}/`, `${rqPath}.json`)
 
     if (fs.existsSync(JSFilePath)) {
       const params = req.path.match(`/${placeholder}\\w*/g`)
@@ -26,7 +31,7 @@ module.exports = function(option) {
         res.json(JSON.parse(file))
       }, 200)
     } else {
-      util.writeFile(
+      writeFile(
         JSONFilePath,
         JSON.stringify({
           code: 0,
@@ -48,12 +53,12 @@ module.exports = function(option) {
     res.json({
       code: 0,
       message: '成功',
-      data: util.getJsonFiles('mock'),
+      data: getJsonFiles(config.mockDir, config),
     })
   })
   app.get('/apimock/json', async (req, res) => {
     const { url } = req.query
-    const data = fs.readFileSync(`mock/api/${url}`)
+    const data = fs.readFileSync(`${config.mockDir}/${config.proxyToken}/${url}`)
     res.json({
       code: 0,
       message: '成功',
@@ -72,7 +77,7 @@ module.exports = function(option) {
   })
   app.post('/apimock/create', async (req, res) => {
     const { url, json } = req.body
-    let realUrl = util.urlFormat(url, config)
+    let realUrl = urlFormat(url, config)
     if (realUrl.indexOf('.json') === -1) {
       realUrl += '.json'
     }
