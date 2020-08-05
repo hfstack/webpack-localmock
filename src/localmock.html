@@ -136,6 +136,16 @@
                     axios.post('/apimock/save', {
                         json: item.json,
                         url: item.url
+                    }).then((res) => {
+                        this.$message({
+                            message: '保存成功',
+                            type: 'success'
+                        });
+                    }).catch(e => {
+                        this.$message({
+                            message: '保存失败',
+                            type: 'error'
+                        });
                     })
                 },
                 jsonValify(data) {
