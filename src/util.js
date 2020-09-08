@@ -1,4 +1,4 @@
-const { join } = require('path')
+const { join, normalize } = require('path')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const getDirName = require('path').dirname
@@ -7,8 +7,9 @@ const getDirName = require('path').dirname
  * 获取指定目录下的文件
  * @param {*} jsonPath
  */
-const getJsonFiles = function(jsonPath, config) {
+const getJsonFiles = function(config) {
   const { mockDir = 'mock', proxyToken = 'api' } = config 
+  const mockBaseUrl = normalize(`${mockDir}/${proxyToken}/`)
   const jsonFiles = []
   function findJsonFile(path) {
     const files = fs.readdirSync(path)
@@ -20,12 +21,12 @@ const getJsonFiles = function(jsonPath, config) {
       }
       if (stat.isFile() === true) {
         if (fPath.indexOf('.json') > -1) {
-          jsonFiles.push(fPath.replace(`${mockDir}/${proxyToken}/`, ''))
+          jsonFiles.push(fPath.replace(mockBaseUrl, ''))
         }
       }
     })
   }
-  findJsonFile(jsonPath)
+  findJsonFile(mockDir)
 
   return jsonFiles
 }
@@ -51,7 +52,7 @@ const writeFile = function(path, contents, cb) {
  */
 const urlFormat = function(url, config) {
   const { placeholder, tokenReg } = config
-  let rqPath = url.replace(/\/\/ | null | undefined/g, `/${placeholder}/`)
+  let rqPath = url.replace(/(\/\/) | (null) | (undefined)/g, `/${placeholder}/`)
   rqPath = rqPath
     .split('/')
     .map(item => {
@@ -66,8 +67,49 @@ const urlFormat = function(url, config) {
 
   return rqPath
 }
+/**
+ * 获取localmock配置
+ * @param {*} option 
+ */
+const getConfig = function(option) {
+  const config = {
+    proxyToken: 'api',
+    mockDir: 'mock',
+    placeholder: 'test',
+    tokenReg: new RegExp(/^(?=.*\d)(?=.*[a-zA-Z])[\da-zA-Z~!-@#$%^&*]{12,56}$/, 'g'),
+    ...option,
+  }
+  return config
+}
+/**
+ * 属性继承
+ */
+const extend = function(src)  {
+  let arg = arguments;
+  if (arg.length >= 2) {
+      for (let i = 1, len = arg.length; i < len; i++) {
+          for (let key in arg[i]) {
+              src[key] = arg[i][key];
+          }
+      }
+  }
+  return src;
+}
+const getApiResponse = function(req, res, option) {
+  const config= getConfig(option)
+  let realUrl = urlFormat(req.path, config)
+  if (realUrl.indexOf('.json') === -1) {
+    realUrl += '.json'
+  }
+  const localUrl= normalize(`${config.mockDir}/${config.proxyToken}/${realUrl}`)
+  fs.writeFileSync(localUrl, res.json)
+}
+
 export {
   urlFormat,
   getJsonFiles,
   writeFile,
+  getConfig,
+  extend,
+  getApiResponse
 }

@@ -1,19 +1,14 @@
-import { urlFormat, writeFile, getJsonFiles} from './util.js'
+import { urlFormat, writeFile, getJsonFiles, getConfig} from './util.js'
+// import axios from 'axios'
+
 const path = require('path')
 const fs = require('fs')
 const bodyParser = require('body-parser')
 
 export default function(option) {
-  const config = {
-    app: option.app,
-    proxyToken: 'api',
-    mockDir: 'mock',
-    placeholder: 'test',
-    tokenReg: new RegExp(/^(?=.*\d)(?=.*[a-zA-Z])[\da-zA-Z~!-@#$%^&*]{12,56}$/, 'g'),
-    ...option,
-  }
+  const config = getConfig(option)
   const { app, proxyToken, placeholder, mockDir } = config
-
+  // const context = ['/saas-webserver', '/ding-webserver', '/account-webserver']
   app.use(bodyParser.urlencoded({ extended: false }))
   app.use(bodyParser.json())
 
@@ -46,6 +41,22 @@ export default function(option) {
       })
     }
   })
+  // if (context && Array.isArray(context) && context.length) {
+  //   context.forEach((item) => {
+  //     app.all(`/${item}/*`, async(req, res) => {
+  //       axios({
+  //         method: req.method,
+  //         url: req.originalUrl,
+  //         data: req.query,
+  //         headers: req.headers
+  //       }).then(response => {
+  //         return res.json(response.data)
+  //       }).catch(e => {
+  //         console.log(e)
+  //       })
+  //     })
+  //   })
+  // }
   app.get('/localmock', async (req, res) => {
     res.sendFile(path.resolve(__dirname, './localmock.html'))
   })
@@ -53,7 +64,7 @@ export default function(option) {
     res.json({
       code: 0,
       message: '成功',
-      data: getJsonFiles(config.mockDir, config),
+      data: getJsonFiles(config),
     })
   })
   app.get('/apimock/json', async (req, res) => {
@@ -67,8 +78,8 @@ export default function(option) {
   })
   app.post('/apimock/save', async (req, res) => {
     const { url, json } = req.body
-    console.log(req.body)
-    fs.writeFileSync(`${mockDir}/${proxyToken}/${url}`, json)
+    const localUrl= path.normalize(`${mockDir}/${proxyToken}/${url}`)
+    fs.writeFileSync(localUrl, json)
     res.json({
       code: 0,
       message: '成功',
@@ -81,7 +92,8 @@ export default function(option) {
     if (realUrl.indexOf('.json') === -1) {
       realUrl += '.json'
     }
-    fs.writeFileSync(`${mockDir}/${proxyToken}/${realUrl}`, json)
+    const localUrl= path.normalize(`${mockDir}/${proxyToken}/${realUrl}`)
+    writeFile(localUrl, json)
     res.json({
       code: 0,
       message: '成功',

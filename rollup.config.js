@@ -3,7 +3,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
 // import { terser } from 'rollup-plugin-terser';
 import { eslint } from 'rollup-plugin-eslint';
-
+import json from 'rollup-plugin-json';
 export default [
   {
     input: './src/index.js',
@@ -11,16 +11,21 @@ export default [
       name: 'localmock',
       file: 'dist/release.js',
       format: 'umd',
-      // minify: true,
     },
     plugins: [
-      resolve(), // 这样 Rollup 能找到 `ms`
-      commonjs(), // 这样 Rollup 能转换 `ms` 为一个ES模块
+      resolve({
+        preferBuiltins: true
+      }),
+      json({
+        include: 'node_modules/**',
+      }),
+      commonjs({
+        include: /node_modules/
+      }),
       eslint({
         throwOnError: true,
         throwOnWarning: true,
         include: ['src/**'],
-        // external: ['path', 'fs', 'mkdirp', 'os'],
         exclude: ['node_modules/**']
       }),
       babel({
@@ -29,5 +34,6 @@ export default [
       }),
       // terser(),
     ],
+    // external: ['path', 'fs', 'os'],
   },
 ];

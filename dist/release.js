@@ -815,8 +815,13 @@
 
   var asyncToGenerator = _asyncToGenerator;
 
+  function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+  function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
   var _require = require('path'),
-      join = _require.join;
+      join = _require.join,
+      normalize = _require.normalize;
 
   var fs = require('fs');
 
@@ -829,11 +834,13 @@
    */
 
 
-  var getJsonFiles = function getJsonFiles(jsonPath, config) {
+  var getJsonFiles = function getJsonFiles(config) {
     var _config$mockDir = config.mockDir,
         mockDir = _config$mockDir === void 0 ? 'mock' : _config$mockDir,
         _config$proxyToken = config.proxyToken,
         proxyToken = _config$proxyToken === void 0 ? 'api' : _config$proxyToken;
+    var mockBaseUrl = normalize("".concat(mockDir, "/").concat(proxyToken, "/"));
+    console.log('mockBaseUrl', mockBaseUrl);
     var jsonFiles = [];
 
     function findJsonFile(path) {
@@ -848,13 +855,14 @@
 
         if (stat.isFile() === true) {
           if (fPath.indexOf('.json') > -1) {
-            jsonFiles.push(fPath.replace("".concat(mockDir, "/").concat(proxyToken, "/"), ''));
+            console.log();
+            jsonFiles.push(fPath.replace(mockBaseUrl, ''));
           }
         }
       });
     }
 
-    findJsonFile(jsonPath);
+    findJsonFile(mockDir);
     return jsonFiles;
   };
   /**
@@ -881,7 +889,7 @@
   var urlFormat = function urlFormat(url, config) {
     var placeholder = config.placeholder,
         tokenReg = config.tokenReg;
-    var rqPath = url.replace(/\/\/ | null | undefined/g, "/".concat(placeholder, "/"));
+    var rqPath = url.replace(/(\/\/) | (null) | (undefined)/g, "/".concat(placeholder, "/"));
     rqPath = rqPath.split('/').map(function (item) {
       if (item && tokenReg.test(item)) {
         item = item.replace(tokenReg, placeholder);
@@ -892,10 +900,22 @@
     rqPath = rqPath.replace("/".concat(placeholder, "\\w*/g"), 'test');
     return rqPath;
   };
+  /**
+   * 获取localmock配置
+   * @param {*} option 
+   */
 
-  function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-  function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+  var getConfig = function getConfig(option) {
+    var config = _objectSpread({
+      proxyToken: 'api',
+      mockDir: 'mock',
+      placeholder: 'test',
+      tokenReg: new RegExp(/^(?=.*\d)(?=.*[a-zA-Z])[\da-zA-Z~!-@#$%^&*]{12,56}$/, 'g')
+    }, option);
+
+    return config;
+  };
 
   var path = require('path');
 
@@ -904,18 +924,12 @@
   var bodyParser = require('body-parser');
 
   function mock (option) {
-    var config = _objectSpread({
-      app: option.app,
-      proxyToken: 'api',
-      mockDir: 'mock',
-      placeholder: 'test',
-      tokenReg: new RegExp(/^(?=.*\d)(?=.*[a-zA-Z])[\da-zA-Z~!-@#$%^&*]{12,56}$/, 'g')
-    }, option);
-
+    var config = getConfig(option);
     var app = config.app,
         proxyToken = config.proxyToken,
         placeholder = config.placeholder,
-        mockDir = config.mockDir;
+        mockDir = config.mockDir; // const context = ['/saas-webserver', '/ding-webserver', '/account-webserver']
+
     app.use(bodyParser.urlencoded({
       extended: false
     }));
@@ -964,7 +978,23 @@
       return function (_x, _x2) {
         return _ref.apply(this, arguments);
       };
-    }());
+    }()); // if (context && Array.isArray(context) && context.length) {
+    //   context.forEach((item) => {
+    //     app.all(`/${item}/*`, async(req, res) => {
+    //       axios({
+    //         method: req.method,
+    //         url: req.originalUrl,
+    //         data: req.query,
+    //         headers: req.headers
+    //       }).then(response => {
+    //         return res.json(response.data)
+    //       }).catch(e => {
+    //         console.log(e)
+    //       })
+    //     })
+    //   })
+    // }
+
     app.get('/localmock', /*#__PURE__*/function () {
       var _ref2 = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(req, res) {
         return regenerator.wrap(function _callee2$(_context2) {
@@ -994,7 +1024,7 @@
                 res.json({
                   code: 0,
                   message: '成功',
-                  data: getJsonFiles(config.mockDir, config)
+                  data: getJsonFiles(config)
                 });
 
               case 1:
@@ -1038,15 +1068,15 @@
     }());
     app.post('/apimock/save', /*#__PURE__*/function () {
       var _ref5 = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee5(req, res) {
-        var _req$body, url, json;
+        var _req$body, url, json, localUrl;
 
         return regenerator.wrap(function _callee5$(_context5) {
           while (1) {
             switch (_context5.prev = _context5.next) {
               case 0:
                 _req$body = req.body, url = _req$body.url, json = _req$body.json;
-                console.log(req.body);
-                fs$1.writeFileSync("".concat(mockDir, "/").concat(proxyToken, "/").concat(url), json);
+                localUrl = path.normalize("".concat(mockDir, "/").concat(proxyToken, "/").concat(url));
+                fs$1.writeFileSync(localUrl, json);
                 res.json({
                   code: 0,
                   message: '成功',
@@ -1067,7 +1097,7 @@
     }());
     app.post('/apimock/create', /*#__PURE__*/function () {
       var _ref6 = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee6(req, res) {
-        var _req$body2, url, json, realUrl;
+        var _req$body2, url, json, realUrl, localUrl;
 
         return regenerator.wrap(function _callee6$(_context6) {
           while (1) {
@@ -1080,14 +1110,15 @@
                   realUrl += '.json';
                 }
 
-                fs$1.writeFileSync("".concat(mockDir, "/").concat(proxyToken, "/").concat(realUrl), json);
+                localUrl = path.normalize("".concat(mockDir, "/").concat(proxyToken, "/").concat(realUrl));
+                writeFile(localUrl, json);
                 res.json({
                   code: 0,
                   message: '成功',
                   data: null
                 });
 
-              case 5:
+              case 6:
               case "end":
                 return _context6.stop();
             }
@@ -1133,17 +1164,50 @@
     return needHost;
   };
 
-  function index (option) {
-    return _objectSpread$1({
-      port: 7788,
-      host: getNetworkIp(),
+  function index () {
+    var option = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var ip = getNetworkIp();
+    var port = option.port || 7788; // const context = option.context ||  ['/saas-webserver', '/ding-webserver', '/account-webserver']
+
+    return {
+      port: port,
+      host: ip,
+      // proxy: {
+      //   '/saas-webserver': {
+      //     target: `http://${ip}:${port}`,
+      //     changeOrigin: true,
+      //     pathRewrite: {
+      //       '^/saas-webserver' : '/saas-webserver'
+      //     }
+      //   },
+      // },
+      // proxy: [{
+      //   context,
+      //   target: `http://${ip}:${port}`
+      // }],
       before: function before(app) {
         return mock(_objectSpread$1({
           app: app
         }, option));
       }
-    }, option);
-  }
+    };
+  } // if(process.env.proxy) {
+  //   const proxy = process.env.proxy
+  //   const apiUrl = process.env.VUE_APP_API_DING_URL
+  //   const list = ['/saas-webserver', '/ding-webserver', '/account-webserver']
+  //   const myUrl = new URL(proxy)
+  //   let result = {}
+  //   list.map((item) => {
+  //     result[item] = {
+  //       target: proxy.indexOf(item) !== -1 ? `http://${myUrl.host}` : apiUrl,
+  //       changeOrigin: true,
+  //       pathRewrite: {
+  //         ['^' + item]: ''
+  //       }
+  //     }
+  //   })
+  //   devServer.proxy = result
+  // }
 
   return index;
 
